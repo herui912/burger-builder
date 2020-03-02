@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import Aux from '../../hoc/Aux'
 import Burger from '../../components/Burger/Burger'
 import BurgerControls from '../../components/Burger/BuildControls/BuildControls'
+import Modal from '../../components/UI/Modal/Modal'
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
 
 const INGREDIENT_PRICES = {
 	salad: 0.5,
@@ -17,7 +19,30 @@ class BurgerBuilder extends Component {
 			cheese: 0,
 			meat: 0
 		},
-		totalPrice: 4
+		totalPrice: 4,
+		purchaseable: false,
+		purchasing: false
+	}
+	updatePurchaseState (ingred) {
+		const ingredients = {
+			...ingred
+		}
+		const sum = Object.keys(ingredients)
+		.map(igKey => {
+			return ingredients[igKey]
+		}).reduce((sum, el) => {
+			return sum + el
+		}, 0)
+		this.setState({purchaseable: sum > 0})
+	}
+	purchaseHandler = () => {
+		this.setState({purchasing: true})
+	}
+	purchaseCancelHandler = () => {
+		this.setState({purchasing: false})
+	}
+	purchaseContinueHandler = () => {
+		alert('You Continue')
 	}
 	render () {
 		const disabledInfo = {
@@ -29,12 +54,24 @@ class BurgerBuilder extends Component {
 
 		return (
 			<Aux>
+				<Modal
+					show={this.state.purchasing}
+					modalClosed={this.purchaseCancelHandler}>
+					<OrderSummary
+						ingredients={this.state.ingredients}
+						price={this.state.totalPrice}
+						purchaseCanceled={this.purchaseCancelHandler}
+						purchaseContinued={this.purchaseContinueHandler}
+					/>
+				</Modal>
 				<Burger ingredients={this.state.ingredients}/>
 				<BurgerControls
 					ingredientAdded={this.addIngredientHandler}
 					ingredientRemoved={this.removeIngredientHandler}
 					disabled={disabledInfo}
 					price={this.state.totalPrice}
+					purchaseable={this.state.purchaseable}
+					ordered={this.purchaseHandler}
 					/>
 			</Aux>
 		)
@@ -49,6 +86,7 @@ class BurgerBuilder extends Component {
 		const priceAddition = INGREDIENT_PRICES[type]
 		const newPrice = this.state.totalPrice + priceAddition
 		this.setState({ingredients: updatedIngredients, totalPrice: newPrice})
+		this.updatePurchaseState(updatedIngredients)
 	}
 	removeIngredientHandler = (type) => {
 		const oldCount = this.state.ingredients[type]
@@ -61,7 +99,7 @@ class BurgerBuilder extends Component {
 		const priceDeduction = INGREDIENT_PRICES[type]
 		const newPrice = this.state.totalPrice - priceDeduction
 		this.setState({ingredients: updatedIngredients, totalPrice: newPrice})
-		
+		this.updatePurchaseState(updatedIngredients)
 	}
 }
 export default BurgerBuilder
