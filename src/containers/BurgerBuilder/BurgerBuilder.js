@@ -73,7 +73,7 @@ class BurgerBuilder extends Component {
 		let burger = this.state.error ? <p>Ingredients can't be loaded.</p> : <Spinner />
 		if (this.state.ingredients){
 			burger = (
-				<Aux>
+				<React.Fragment>
 					<Burger ingredients={this.state.ingredients}/>
 					<BurgerControls
 						ingredientAdded={this.addIngredientHandler}
@@ -83,7 +83,7 @@ class BurgerBuilder extends Component {
 						purchaseable={this.state.purchaseable}
 						ordered={this.purchaseHandler}
 						/>
-					</Aux>
+					</React.Fragment>
 			)
 			orderSummary = <OrderSummary
 				ingredients={this.state.ingredients}
